@@ -36,7 +36,7 @@
           return false; // Prevent form submission
         }
 
-        fetch("/shorten", {
+        fetch("/api/shorten", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +57,7 @@
           .then((data) => {
             const shortenedUrl = data.shortUrl;
             const shortenedUrlDiv = document.getElementById("shortenedUrl");
-            shortenedUrlDiv.innerHTML = `<p class="text-green-600">Shortened URL: <a href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">http://localhost:5000/${shortenedUrl}</a></p>`;
+            shortenedUrlDiv.innerHTML = `<p class="text-green-600">Shortened URL: <a href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">https://nice-url-shortner.vercel.app/${shortenedUrl}</a></p>`;
             clearErrors(); // Clear any previous errors
           })
           .catch((error) => {

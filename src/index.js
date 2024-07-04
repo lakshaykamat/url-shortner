@@ -18,11 +18,13 @@ app.use(morgan("dev"));
 
 // Set EJS as templating engine
 app.set("view engine", "ejs");
-console.log(__dirname);
 app.set("views", path.join(__dirname, "views"));
 
-// Routes
 app.get("/", (req, res) => {
+  res.redirect("/api");
+});
+// Routes
+app.get("/api", (req, res) => {
   res.render("index", { title: "Home", shortenedUrl: null });
 });
 const isValidUrl = (url) => {
@@ -38,7 +40,7 @@ const isValidUrl = (url) => {
   );
   return !!urlPattern.test(url);
 };
-app.post("/shorten", async (req, res) => {
+app.post("/api/shorten", async (req, res) => {
   let { originalUrl, shortUrl } = req.body;
 
   // Validate originalUrl
@@ -48,13 +50,11 @@ app.post("/shorten", async (req, res) => {
 
   // Validate shortUrl format (if provided)
   if (shortUrl && !shortUrl.match(/^[a-zA-Z0-9_-]{3,}$/)) {
-    return res
-      .status(400)
-      .json({
-        error: true,
-        message:
-          "Invalid short URL format. Use only letters, numbers, underscores, and dashes.",
-      });
+    return res.status(400).json({
+      error: true,
+      message:
+        "Invalid short URL format. Use only letters, numbers, underscores, and dashes.",
+    });
   }
 
   // Check if shortUrl is already in use
@@ -76,7 +76,7 @@ app.post("/shorten", async (req, res) => {
   res.json(url);
 });
 
-app.get("/:shortUrl", async (req, res) => {
+app.get("/api/:shortUrl", async (req, res) => {
   const { shortUrl } = req.params;
   const url = await Url.findOne({ shortUrl });
   if (url) {
