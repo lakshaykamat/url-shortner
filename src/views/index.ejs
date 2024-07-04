@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <!-- Include Tailwind CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom styles for the form */
+      .form-error {
+        color: #e53e3e; /* Tailwind red-600 */
+      }
+    </style>
+    <script>
+      // JavaScript to handle form submission and display shortened URL or errors
+      function shortenUrl() {
+        const form = document.getElementById("urlForm");
+        const originalUrl = form.elements["originalUrl"].value;
+        const shortUrl = form.elements["shortUrl"].value;
+
+        // Test originalUrl format using regex
+        if (!isValidUrl(originalUrl)) {
+          displayError("Invalid URL format");
+          return false; // Prevent form submission
+        }
+
+        // Test shortUrl format using regex
+        if (shortUrl && !/^[a-zA-Z0-9_-]{3,}$/.test(shortUrl)) {
+          displayError(
+            "Invalid short URL format. Use only letters, numbers, underscores, and dashes."
+          );
+          return false; // Prevent form submission
+        }
+
+        fetch("/shorten", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            originalUrl,
+            shortUrl,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Failed to shorten url. ${shortUrl} is already in use`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const shortenedUrl = data.shortUrl;
+            const shortenedUrlDiv = document.getElementById("shortenedUrl");
+            shortenedUrlDiv.innerHTML = `<p class="text-green-600">Shortened URL: <a href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">http://localhost:5000/${shortenedUrl}</a></p>`;
+            clearErrors(); // Clear any previous errors
+          })
+          .catch((error) => {
+            displayError(error.message); // Display error message
+          });
+
+        return false; // Prevent default form submission
+      }
+
+      // Function to validate URL format
+      function isValidUrl(url) {
+        const urlPattern = new RegExp(
+          "^(https?:\\/\\/)?" + // protocol
+            "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+            "((\\d{1,3}\\.){3}\\d{1,3})|" + // OR ip (v4) address
+            "localhost)" + // OR localhost
+            "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+            "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+            "(\\#[-a-z\\d_]*)?$",
+          "i"
+        );
+        return !!urlPattern.test(url);
+      }
+
+      // Function to display error message
+      function displayError(message) {
+        const errorDiv = document.getElementById("error");
+        errorDiv.textContent = `Error: ${message}`;
+        errorDiv.classList.remove("hidden");
+      }
+
+      // Function to clear error messages
+      function clearErrors() {
+        const errorDiv = document.getElementById("error");
+        errorDiv.textContent = "";
+        errorDiv.classList.add("hidden");
+      }
+    </script>
+  </head>
+
+  <body
+    class="p-4 bg-gray-100 min-h-screen flex flex-col items-center justify-center"
+  >
+    <h1 class="mb-7 font-bold sm:text-3xl text-xl">URL Shortener</h1>
+
+    <!-- Form to shorten URL -->
+    <form
+      class="bg-white rounded-lg shadow-md p-6 max-w-md w-full"
+      id="urlForm"
+      onsubmit="return shortenUrl()"
+      method="POST"
+    >
+      <!-- Input for original URL -->
+      <div class="mb-4">
+        <label for="originalUrl" class="block text-sm font-medium text-gray-700"
+          >Enter URL:</label
+        >
+        <input
+          type="url"
+          id="originalUrl"
+          name="originalUrl"
+          required
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="https://example.com"
+        />
+      </div>
+
+      <!-- Input for custom short URL (optional) -->
+      <div class="mb-4">
+        <label for="shortUrl" class="block text-sm font-medium text-gray-700"
+          >Custom Short Word (optional):</label
+        >
+        <input
+          type="text"
+          id="shortUrl"
+          name="shortUrl"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="custom-url"
+        />
+      </div>
+
+      <!-- Error message display -->
+      <div id="error" class="mb-4 text-sm form-error hidden"></div>
+
+      <!-- Submit button -->
+      <button
+        type="submit"
+        class="inline-flex justify-center w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+      >
+        Shorten URL
+      </button>
+    </form>
+
+    <!-- Display shortened URL or error -->
+    <div id="shortenedUrl" class="mt-4"></div>
+  </body>
+</html>
