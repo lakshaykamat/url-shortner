@@ -27,6 +27,9 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.render("index", { title: "Home", shortenedUrl: null });
 });
+app.get("/api/about", (req, res) => {
+  res.render("about");
+});
 const isValidUrl = (url) => {
   const urlPattern = new RegExp(
     "^(https?:\\/\\/)?" + // protocol

@@ -57,7 +57,7 @@
           .then((data) => {
             const shortenedUrl = data.shortUrl;
             const shortenedUrlDiv = document.getElementById("shortenedUrl");
-            shortenedUrlDiv.innerHTML = `<p class="text-green-600">Shortened URL: <a href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">https://nice-url-shortner.vercel.app/${shortenedUrl}</a></p>`;
+            shortenedUrlDiv.innerHTML = `<p class="text-blue-600 my-2">Shortened URL: <br/><a class="text-blue-600 font-semibold underline" href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">https://nice-url-shortner.vercel.app/${shortenedUrl}</a></p>`;
             clearErrors(); // Clear any previous errors
           })
           .catch((error) => {
@@ -98,60 +98,82 @@
     </script>
   </head>
 
-  <body
-    class="p-4 bg-gray-100 min-h-screen flex flex-col items-center justify-center"
-  >
-    <h1 class="mb-7 font-bold sm:text-3xl text-xl">URL Shortener</h1>
-
-    <!-- Form to shorten URL -->
-    <form
-      class="bg-white rounded-lg shadow-md p-6 max-w-md w-full"
-      id="urlForm"
-      onsubmit="return shortenUrl()"
-      method="POST"
-    >
-      <!-- Input for original URL -->
-      <div class="mb-4">
-        <label for="originalUrl" class="block text-sm font-medium text-gray-700"
-          >Enter URL:</label
-        >
-        <input
-          type="url"
-          id="originalUrl"
-          name="originalUrl"
-          required
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          placeholder="https://example.com"
-        />
+  <body class="bg-gray-100">
+    <nav class="flex bg-white gap-2 p-4 border-b-2">
+      <div class="p-2 hover:bg-blue-100">
+        <a class="hover:underline" href="/">Home</a>
       </div>
-
-      <!-- Input for custom short URL (optional) -->
-      <div class="mb-4">
-        <label for="shortUrl" class="block text-sm font-medium text-gray-700"
-          >Custom Short Word (optional):</label
-        >
-        <input
-          type="text"
-          id="shortUrl"
-          name="shortUrl"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          placeholder="custom-url"
-        />
+      <div class="p-2 hover:bg-blue-100">
+        <a class="hover:underline" href="/api/about">About</a>
       </div>
+      <div class="p-2 hover:bg-blue-100">
+        <a class="hover:underline" href="https://github.com/lakshaykamat"
+          >Github</a
+        >
+      </div>
+    </nav>
+    <div class="mx-auto p-4 flex flex-col items-center my-12 max-w-2xl outline">
+      <h1 class="mb-7 font-bold sm:text-3xl text-xl">URL Shortener</h1>
 
-      <!-- Error message display -->
-      <div id="error" class="mb-4 text-sm form-error hidden"></div>
-
-      <!-- Submit button -->
-      <button
-        type="submit"
-        class="inline-flex justify-center w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+      <!-- Form to shorten URL -->
+      <form
+        class="bg-white rounded-lg shadow-md p-6 w-full"
+        id="urlForm"
+        onsubmit="return shortenUrl()"
+        method="POST"
       >
-        Shorten URL
-      </button>
-    </form>
+        <!-- Input for original URL -->
+        <div class="mb-4">
+          <label
+            for="originalUrl"
+            class="block text-sm font-medium text-gray-700"
+            >Enter URL:</label
+          >
+          <input
+            type="url"
+            id="originalUrl"
+            name="originalUrl"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="https://example.com"
+          />
+        </div>
 
-    <!-- Display shortened URL or error -->
-    <div id="shortenedUrl" class="mt-4"></div>
+        <!-- Input for custom short URL (optional) -->
+        <div class="mb-4">
+          <label for="shortUrl" class="block text-sm font-medium text-gray-700"
+            >Custom Short Word (optional):</label
+          >
+          <input
+            type="text"
+            id="shortUrl"
+            name="shortUrl"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="custom-url"
+          />
+        </div>
+
+        <!-- Error message display -->
+        <div id="error" class="mb-4 text-sm form-error hidden"></div>
+
+        <!-- Submit button -->
+        <button
+          type="submit"
+          class="inline-flex justify-center w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Shorten URL
+        </button>
+      </form>
+      <!-- Display shortened URL or error -->
+      <div id="shortenedUrl" class="mt-4 text-center"></div>
+      <p class="text-sm">
+        Created By
+        <a
+          href="https://github.com/lakshaykamat"
+          class="text-blue-500 underline"
+          >Lakshay Kamat</a
+        >
+      </p>
+    </div>
   </body>
 </html>
