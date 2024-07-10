@@ -55,9 +55,18 @@
             return response.json();
           })
           .then((data) => {
-            const shortenedUrl = data.shortUrl;
+            const shortenedUrl = data.url.shortUrl;
+            const qrCode = data.url.qrCode;
             const shortenedUrlDiv = document.getElementById("shortenedUrl");
-            shortenedUrlDiv.innerHTML = `<p class="text-blue-600 my-2">Shortened URL: <br/><a class="text-blue-600 font-semibold underline" href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">https://nice-url-shortner.vercel.app/${shortenedUrl}</a></p>`;
+            shortenedUrlDiv.innerHTML = `
+          <p class="text-blue-600 my-2">Shortened URL: <br/>
+            <a class="text-blue-600 font-semibold underline" href="${shortenedUrl}" target="_blank" rel="noopener noreferrer">https://nice-url-shortner.vercel.app/${shortenedUrl}</a>
+          </p>
+          <p class="text-blue-600 flex flex-col items-center my-2">QR Code: <br/>
+            <img id="qrCodeImage" src="${qrCode}" alt="QR Code" />
+          </p>
+          <button class="inline-flex justify-center w-full my-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="downloadQRCode()">Download QR Code</button>
+        `;
             clearErrors(); // Clear any previous errors
           })
           .catch((error) => {
@@ -95,6 +104,22 @@
         errorDiv.textContent = "";
         errorDiv.classList.add("hidden");
       }
+
+      // Function to download QR code
+      function downloadQRCode() {
+        const qrCodeImage = document.getElementById("qrCodeImage");
+        const link = document.createElement("a");
+        link.href = qrCodeImage.src;
+        link.download = "qrcode.png";
+        link.click();
+      }
+
+      // Function to toggle accordion panels
+    function toggleAccordion(event) {
+      const panel = event.target.nextElementSibling;
+      panel.classList.toggle("hidden");
+    }
+    
     </script>
   </head>
 
@@ -166,6 +191,42 @@
       </form>
       <!-- Display shortened URL or error -->
       <div id="shortenedUrl" class="mt-4 text-center"></div>
+
+
+       <!-- Accordion Section -->
+    <div class="my-8 w-full">
+      <h2 class="text-lg font-bold mb-3">Why Use a URL Shortener?</h2>
+      <div>
+        <button class="flex justify-between flex-row accordion-button w-full p-4 text-left text-sm font-semibold text-gray-700 bg-gray-200 rounded-t-lg" onclick="toggleAccordion(event)">
+          Benefits of URL Shortening
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="hidden p-4 bg-white border border-gray-200 rounded-b-lg">
+          <p>URL shorteners provide a way to condense long URLs into short, manageable links. They are beneficial for sharing links on social media, in emails, or in printed materials.</p>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <button class="flex justify-between flex-row accordion-button w-full p-4 text-left text-sm font-semibold text-gray-700 bg-gray-200 rounded-t-lg" onclick="toggleAccordion(event)">
+          Use Cases for URL Shortening
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="hidden p-4 bg-white border border-gray-200 rounded-b-lg">
+          <p>
+            URL shorteners can be used in various scenarios, including:
+            <ul class="list-disc list-inside">
+              <li>Tracking the number of clicks on a link</li>
+              <li>Customizing the appearance of a link</li>
+              <li>Sharing links on platforms with character limits</li>
+              <li>Masking the destination of a link for privacy</li>
+            </ul>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+
       <p class="text-sm">
         Created By
         <a

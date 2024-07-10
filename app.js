@@ -6,6 +6,9 @@ const path = require("path");
 const Url = require("./models/Url");
 const shortid = require("shortid");
 const connectDatabase = require("./config/mongo");
+const { isValidUrl } = require("./lib/utils");
+const QRCode = require("qrcode");
+
 connectDatabase();
 
 const app = express();
@@ -23,32 +26,24 @@ app.set("views", path.join(__dirname, "views"));
 app.get("/", (req, res) => {
   res.redirect("/api");
 });
-// Routes
+
+// API Routes
 app.get("/api", (req, res) => {
   res.render("index", { title: "Home", shortenedUrl: null });
 });
+
+// About page
 app.get("/api/about", (req, res) => {
   res.render("about");
 });
-const isValidUrl = (url) => {
-  const urlPattern = new RegExp(
-    "^(https?:\\/\\/)?" + // protocol
-      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
-      "((\\d{1,3}\\.){3}\\d{1,3})|" + // OR ip (v4) address
-      "localhost)" + // OR localhost
-      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-      "(\\#[-a-z\\d_]*)?$",
-    "i"
-  );
-  return !!urlPattern.test(url);
-};
+
+// Route to shorten the long URL
 app.post("/api/shorten", async (req, res) => {
   let { originalUrl, shortUrl } = req.body;
 
   // Validate originalUrl
   if (!isValidUrl(originalUrl)) {
-    return res.status(400).json("Invalid URL");
+    return res.status(400).json({ error: true, message: "Invalid URL" });
   }
 
   // Validate shortUrl format (if provided)
@@ -73,31 +68,62 @@ app.post("/api/shorten", async (req, res) => {
     shortUrl = shortid.generate();
   }
 
+  // Generate QR code
+  const qrCodeDataUrl = await QRCode.toDataURL(
+    `${req.protocol}://${req.get("host")}/${shortUrl}`
+  );
+
   // Save the URL to the database
-  const url = new Url({ originalUrl, shortUrl });
+  const url = new Url({ originalUrl, shortUrl, qrCode: qrCodeDataUrl });
   await url.save();
-  res.json(url);
+
+  res.json({ url });
 });
 
+// Route to redirect to the original URL
 app.get("/api/:shortUrl", async (req, res) => {
   const { shortUrl } = req.params;
-  const url = await Url.findOne({ shortUrl });
+  const url = await Url.findOneAndUpdate(
+    { shortUrl },
+    { $inc: { clickCount: 1 } },
+    { new: true }
+  );
+
   if (url) {
     res.redirect(url.originalUrl);
   } else {
-    res.status(404).send("URL not found");
+    res.status(404).send("Page not found");
   }
 });
 
+// Route to redirect to the original URL
 app.get("/:shortUrl", async (req, res) => {
   const { shortUrl } = req.params;
-  const url = await Url.findOne({ shortUrl });
+  const url = await Url.findOneAndUpdate(
+    { shortUrl },
+    { $inc: { clickCount: 1 } },
+    { new: true }
+  );
+
   if (url) {
     res.redirect(url.originalUrl);
   } else {
-    res.status(404).send("URL not found");
+    res.status(404).send("Page not found");
   }
 });
+
+// Route to fetch URL details
+app.get("/api/details/:shortUrl", async (req, res) => {
+  const { shortUrl } = req.params;
+  const url = await Url.findOne({ shortUrl });
+
+  if (url) {
+    res.json(url);
+  } else {
+    res.status(404).json({ error: true, message: "URL not found" });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
